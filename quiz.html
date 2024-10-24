@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Who Wants to Be a Millionaire Quiz with Arcade Sounds</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            text-align: center;
+            margin-top: 50px;
+        }
+        h1 {
+            color: #333;
+        }
+        .game-box {
+            background-color: #fff;
+            padding: 20px;
+            margin: 20px auto;
+            width: 80%;
+            max-width: 600px;
+            border: 2px solid #333;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+        }
+        img {
+            width: 300px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 15px 30px;
+            margin: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            width: 80%;
+            max-width: 500px;
+        }
+        .lifelines {
+            margin: 20px 0;
+        }
+        .lifeline {
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            margin: 5px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            width: 100px;
+        }
+        .lifeline:disabled {
+            background-color: grey;
+        }
+        .correct {
+            background-color: lightgreen;
+        }
+        .wrong {
+            background-color: red;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Who Wants to Be a Millionaire</h1>
+
+<div class="game-box">
+    <img id="question-image" src="" alt="Question Image">
+    <p id="question"></p>
+    <button id="answer1" onclick="checkAnswer(1)"></button>
+    <button id="answer2" onclick="checkAnswer(2)"></button>
+    <button id="answer3" onclick="checkAnswer(3)"></button>
+    <button id="answer4" onclick="checkAnswer(4)"></button>
+
+    <div class="lifelines">
+        <button class="lifeline" id="lifeline-5050" onclick="use5050()">50:50</button>
+        <button class="lifeline" id="lifeline-audience" onclick="askAudience()">Ask the Audience</button>
+        <button class="lifeline" id="lifeline-phone" onclick="phoneFriend()">Phone a Friend</button>
+    </div>
+
+    <p id="message"></p>
+</div>
+
+<script>
+    const questions = [
+        {
+            image: "/mnt/data/A_quiz_bingo_game_concept_with_6_different_images,.png", // Example image, replace with correct path
+            question: "What is the capital city of India?",
+            answers: ["New Delhi", "Mumbai", "Bangalore", "Chennai"],
+            correct: 1
+        },
+        {
+            image: "/mnt/data/A_quiz_bingo_game_concept_featuring_key_elements_f.png", // Example image, replace with correct path
+            question: "Which festival is known as the 'Festival of Lights' in India?",
+            answers: ["Holi", "Diwali", "Pongal", "Navratri"],
+            correct: 2
+        },
+        {
+            image: "/mnt/data/A_quiz_bingo_game_concept_with_6_different_images,.png", // Example image, replace with correct path
+            question: "What is the indigenous name for New Zealand?",
+            answers: ["Aotearoa", "Māori", "Kiwi", "Rotorua"],
+            correct: 1
+        }
+    ];
+
+    let currentQuestionIndex = 0;
+    let used5050 = false;
+
+    // Arcade-style sound generator function using Web Audio API
+    function playArcadeSound(frequency, type = 'square', duration = 0.5) {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.type = type;
+        oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime); // Frequency in hertz
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.start();
+
+        // Fade out and stop sound
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + duration);
+        oscillator.stop(audioContext.currentTime + duration);
+    }
+
+    function loadQuestion() {
+        const questionData = questions[currentQuestionIndex];
+        document.getElementById('question-image').src = questionData.image;
+        document.getElementById('question').innerText = questionData.question;
+        document.getElementById('answer1').innerText = questionData.answers[0];
+        document.getElementById('answer2').innerText = questionData.answers[1];
+        document.getElementById('answer3').innerText = questionData.answers[2];
+        document.getElementById('answer4').innerText = questionData.answers[3];
+        document.getElementById('message').innerText = '';
+    }
+
+    function checkAnswer(answer) {
+        const questionData = questions[currentQuestionIndex];
+        if (answer === questionData.correct) {
+            playArcadeSound(440); // Correct answer sound (A4 note)
+            document.getElementById('message').innerText = 'Correct!';
+            setTimeout(() => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) {
+                    loadQuestion();
+                } else {
+                    document.getElementById('message').innerText = 'You have won!';
+                }
+            }, 1000);
+        } else {
+            playArcadeSound(220, 'sawtooth'); // Wrong answer sound (lower, harsher tone)
+            document.getElementById('message').innerText = 'Wrong! Game Over!';
+        }
+    }
+
+    function use5050() {
+        if (used5050) return;
+        const questionData = questions[currentQuestionIndex];
+        let incorrectAnswers = [];
+        for (let i = 1; i <= 4; i++) {
+            if (i !== questionData.correct) {
+                incorrectAnswers.push(i);
+            }
+        }
+        // Randomly remove two incorrect answers
+        const toRemove = incorrectAnswers.sort(() => Math.random() - 0.5).slice(0, 2);
+        toRemove.forEach(answerIndex => {
+            document.getElementById('answer' + answerIndex).disabled = true;
+        });
+        playArcadeSound(660, 'triangle'); // Lifeline sound (higher pitch triangle wave)
+        used5050 = true;
+        document.getElementById('lifeline-5050').disabled = true;
+    }
+
+    function askAudience() {
+        playArcadeSound(660, 'triangle'); // Lifeline sound
+        document.getElementById('message').innerText = 'The audience suggests option ' + questions[currentQuestionIndex].correct;
+        document.getElementById('lifeline-audience').disabled = true;
+    }
+
+    function phoneFriend() {
+        playArcadeSound(660, 'triangle'); // Lifeline sound
+        document.getElementById('message').innerText = 'Your friend thinks the answer is ' + questions[currentQuestionIndex].correct;
+        document.getElementById('lifeline-phone').disabled = true;
+    }
+
+    loadQuestion();
+</script>
+
+</body>
+</html>
