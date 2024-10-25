@@ -185,6 +185,11 @@
     let currentQuestionIndex = 0;
     let used5050 = false;
 
+    // Initialize and display the first question
+    window.onload = function() {
+        loadQuestion();
+    };
+
     function loadQuestion() {
         const questionData = questions[currentQuestionIndex];
         document.getElementById('question').innerText = questionData.question;
@@ -256,11 +261,3 @@
 
     function use5050() {
         if (used5050) return;
-        const questionData = questions[currentQuestionIndex];
-        let incorrectAnswers = [];
-        for (let i = 1; i <= 4; i++) {
-            if (i !== questionData.correct) {
-                incorrectAnswers.push(i);
-            }
-        }
-        // Randomly remove
