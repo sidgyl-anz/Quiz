@@ -17,7 +17,7 @@
         }
 
         .game-container {
-            background-color: #222; /* Solid background color */
+            background-image: url('your-background-image-url-here'); /* Background image */
             background-size: cover;
             background-position: center;
             height: 100vh;
@@ -100,42 +100,20 @@
             margin-top: 20px;
             font-size: 24px;
         }
-
-        .retry-button {
-            margin-top: 20px;
-            padding: 15px;
-            font-size: 18px;
-            background-color: white;
-            color: black;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-            display: none; /* Initially hidden */
-        }
-
-        .thank-you-page {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            font-size: 36px;
-            background-color: black;
-            color: white;
-        }
     </style>
 </head>
 <body>
 
-<div class="game-container" id="game-container">
+<div class="game-container">
     <div class="question" id="question">
-        <!-- Placeholder for the question -->
+        Type your question here
     </div>
 
     <div class="answers">
-        <button class="answer" id="answer1" onclick="checkAnswer(1)">Answer 1</button>
-        <button class="answer" id="answer2" onclick="checkAnswer(2)">Answer 2</button>
-        <button class="answer" id="answer3" onclick="checkAnswer(3)">Answer 3</button>
-        <button class="answer" id="answer4" onclick="checkAnswer(4)">Answer 4</button>
+        <button class="answer" id="answer1" onclick="checkAnswer(1)">Type WRONG answer here</button>
+        <button class="answer" id="answer2" onclick="checkAnswer(2)">Type CORRECT answer here</button>
+        <button class="answer" id="answer3" onclick="checkAnswer(3)">Type WRONG answer here</button>
+        <button class="answer" id="answer4" onclick="checkAnswer(4)">Type WRONG answer here</button>
     </div>
 
     <div class="lifelines">
@@ -145,8 +123,6 @@
     </div>
 
     <div class="message" id="message"></div>
-
-    <button class="retry-button" id="retry-button" onclick="restartGame()">Try Again</button>
 </div>
 
 <script>
@@ -186,10 +162,6 @@
     let currentQuestionIndex = 0;
     let used5050 = false;
 
-    window.onload = function() {
-        loadQuestion(); // Ensure the first question loads correctly
-    };
-
     function loadQuestion() {
         const questionData = questions[currentQuestionIndex];
         document.getElementById('question').innerText = questionData.question;
@@ -199,7 +171,6 @@
         document.getElementById('answer4').innerText = questionData.answers[3];
         document.getElementById('message').innerText = '';
         resetButtonStyles();
-        document.getElementById('retry-button').style.display = 'none'; // Hide the retry button
     }
 
     function checkAnswer(answer) {
@@ -207,24 +178,23 @@
         const correctButtonId = 'answer' + questionData.correct;
 
         if (answer === questionData.correct) {
-            document.getElementById(correctButtonId).classList.add('correct'); // Correct answer turns green
+            document.getElementById(correctButtonId).classList.add('correct'); // Turn correct answer green
             playSound(440, 'square'); // Play correct sound
             document.getElementById('message').innerText = 'Correct!';
-
-            setTimeout(() => {
-                currentQuestionIndex++;
-                if (currentQuestionIndex < questions.length) {
-                    loadQuestion();
-                } else {
-                    showThankYouPage(); // If user wins, show thank you page
-                }
-            }, 2000);
         } else {
-            document.getElementById('answer' + answer).classList.add('wrong'); // Wrong answer turns red
+            document.getElementById('answer' + answer).classList.add('wrong'); // Turn wrong answer red
             playSound(220, 'sawtooth'); // Play wrong sound
             document.getElementById('message').innerText = 'Wrong! The correct answer was: ' + questionData.answers[questionData.correct - 1];
-            document.getElementById('retry-button').style.display = 'block'; // Show retry button
         }
+
+        setTimeout(() => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                document.getElementById('message').innerText = 'You have won!';
+            }
+        }, 2000);
     }
 
     function playSound(frequency, type) {
@@ -249,11 +219,36 @@
         document.getElementById('answer4').className = 'answer';
     }
 
-    function restartGame() {
-        currentQuestionIndex = 0;
-        loadQuestion();
+    function use5050() {
+        if (used5050) return;
+        const questionData = questions[currentQuestionIndex];
+        let incorrectAnswers = [];
+        for (let i = 1; i <= 4; i++) {
+            if (i !== questionData.correct) {
+                incorrectAnswers.push(i);
+            }
+        }
+        // Randomly remove two incorrect answers
+        const toRemove = incorrectAnswers.sort(() => Math.random() - 0.5).slice(0, 2);
+        toRemove.forEach(answerIndex => {
+            document.getElementById('answer' + answerIndex).disabled = true;
+        });
+        used5050 = true;
+        document.getElementById('lifeline-5050').disabled = true;
     }
 
-    function showThankYouPage() {
-        const container = document.getElementById('game-container');
-        container.innerHTML = '<div class="thank-you-page">Thank you for playing!</div>';
+    function askAudience() {
+        document.getElementById('message').innerText = 'The audience suggests option ' + questions[currentQuestionIndex].correct;
+        document.getElementById('lifeline-audience').disabled = true;
+    }
+
+    function phoneFriend() {
+        document.getElementById('message').innerText = 'Your friend thinks the answer is ' + questions[currentQuestionIndex].correct;
+        document.getElementById('lifeline-phone').disabled = true;
+    }
+
+    loadQuestion();
+</script>
+
+</body>
+</html>
