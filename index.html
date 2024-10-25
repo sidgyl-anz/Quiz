@@ -178,11 +178,11 @@
         const correctButtonId = 'answer' + questionData.correct;
 
         if (answer === questionData.correct) {
-            document.getElementById(correctButtonId).classList.add('correct'); // Correct answer turns green
+            document.getElementById(correctButtonId).classList.add('correct'); // Turn correct answer green
             playSound(440, 'square'); // Play correct sound
             document.getElementById('message').innerText = 'Correct!';
         } else {
-            document.getElementById('answer' + answer).classList.add('wrong'); // Wrong answer turns red
+            document.getElementById('answer' + answer).classList.add('wrong'); // Turn wrong answer red
             playSound(220, 'sawtooth'); // Play wrong sound
             document.getElementById('message').innerText = 'Wrong! The correct answer was: ' + questionData.answers[questionData.correct - 1];
         }
@@ -208,8 +208,8 @@
         gainNode.connect(audioCtx.destination);
 
         oscillator.start();
-        gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 1); // Fade out the sound
-        oscillator.stop(audioCtx.currentTime + 1); // Stop the sound after 1 second
+        gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 1); // Fade out sound
+        oscillator.stop(audioCtx.currentTime + 1); // Stop sound after 1 second
     }
 
     function resetButtonStyles() {
