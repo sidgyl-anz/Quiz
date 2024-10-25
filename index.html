@@ -17,7 +17,7 @@
         }
 
         .game-container {
-            background-image: url('your-background-image-url-here'); /* Background image similar to the game look */
+            background-image: url('your-background-image-url-here'); /* Background image */
             background-size: cover;
             background-position: center;
             height: 100vh;
@@ -55,20 +55,22 @@
             cursor: pointer;
             border-radius: 10px;
             font-weight: bold;
-        }
-
-        .correct-answer {
-            background-color: green;
-            color: white;
-        }
-
-        .wrong-answer {
-            background-color: red;
+            background-color: purple; /* Default purple color for all answers */
             color: white;
         }
 
         .answer:hover {
             opacity: 0.9;
+        }
+
+        .correct {
+            background-color: green; /* Change to green if correct */
+            color: white;
+        }
+
+        .wrong {
+            background-color: red; /* Change to red if wrong */
+            color: white;
         }
 
         .lifelines {
@@ -108,10 +110,10 @@
     </div>
 
     <div class="answers">
-        <button class="answer wrong-answer" id="answer1" onclick="checkAnswer(1)">Type WRONG answer here</button>
-        <button class="answer correct-answer" id="answer2" onclick="checkAnswer(2)">Type CORRECT answer here</button>
-        <button class="answer wrong-answer" id="answer3" onclick="checkAnswer(3)">Type WRONG answer here</button>
-        <button class="answer wrong-answer" id="answer4" onclick="checkAnswer(4)">Type WRONG answer here</button>
+        <button class="answer" id="answer1" onclick="checkAnswer(1)">Type WRONG answer here</button>
+        <button class="answer" id="answer2" onclick="checkAnswer(2)">Type CORRECT answer here</button>
+        <button class="answer" id="answer3" onclick="checkAnswer(3)">Type WRONG answer here</button>
+        <button class="answer" id="answer4" onclick="checkAnswer(4)">Type WRONG answer here</button>
     </div>
 
     <div class="lifelines">
@@ -168,23 +170,53 @@
         document.getElementById('answer3').innerText = questionData.answers[2];
         document.getElementById('answer4').innerText = questionData.answers[3];
         document.getElementById('message').innerText = '';
+        resetButtonStyles();
     }
 
     function checkAnswer(answer) {
         const questionData = questions[currentQuestionIndex];
+        const correctButtonId = 'answer' + questionData.correct;
+
         if (answer === questionData.correct) {
+            document.getElementById(correctButtonId).classList.add('correct'); // Correct answer turns green
+            playSound(440, 'square'); // Play correct sound
             document.getElementById('message').innerText = 'Correct!';
-            setTimeout(() => {
-                currentQuestionIndex++;
-                if (currentQuestionIndex < questions.length) {
-                    loadQuestion();
-                } else {
-                    document.getElementById('message').innerText = 'You have won!';
-                }
-            }, 1000);
         } else {
-            document.getElementById('message').innerText = 'Wrong! Game Over!';
+            document.getElementById('answer' + answer).classList.add('wrong'); // Wrong answer turns red
+            playSound(220, 'sawtooth'); // Play wrong sound
+            document.getElementById('message').innerText = 'Wrong! The correct answer was: ' + questionData.answers[questionData.correct - 1];
         }
+
+        setTimeout(() => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                document.getElementById('message').innerText = 'You have won!';
+            }
+        }, 2000);
+    }
+
+    function playSound(frequency, type) {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+
+        oscillator.type = type;
+        oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        oscillator.start();
+        gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 1); // Fade out the sound
+        oscillator.stop(audioCtx.currentTime + 1); // Stop the sound after 1 second
+    }
+
+    function resetButtonStyles() {
+        document.getElementById('answer1').className = 'answer';
+        document.getElementById('answer2').className = 'answer';
+        document.getElementById('answer3').className = 'answer';
+        document.getElementById('answer4').className = 'answer';
     }
 
     function use5050() {
