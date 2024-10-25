@@ -3,74 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Who Wants to Be a Millionaire Quiz with Arcade Sounds</title>
+    <title>Who Wants to Be a Millionaire Quiz</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            background-color: black;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .game-container {
+            background-image: url('your-background-image-url-here'); /* Background image similar to the game look */
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
             text-align: center;
-            margin-top: 50px;
         }
-        h1 {
-            color: #333;
-        }
-        .game-box {
-            background-color: #fff;
+
+        .question {
+            background-color: purple;
+            color: white;
             padding: 20px;
-            margin: 20px auto;
-            width: 80%;
-            max-width: 600px;
-            border: 2px solid #333;
-            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
-        }
-        img {
-            width: 300px;
-            height: auto;
+            width: 60%;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 10px;
             margin-bottom: 20px;
         }
-        button {
-            padding: 15px 30px;
-            margin: 10px;
-            font-size: 18px;
+
+        .answers {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            width: 60%;
+        }
+
+        .answer {
+            padding: 15px;
+            font-size: 20px;
+            border: none;
             cursor: pointer;
-            width: 80%;
-            max-width: 500px;
+            border-radius: 10px;
+            font-weight: bold;
         }
-        .lifelines {
-            margin: 20px 0;
-        }
-        .lifeline {
-            background-color: #007bff;
+
+        .correct-answer {
+            background-color: green;
             color: white;
+        }
+
+        .wrong-answer {
+            background-color: red;
+            color: white;
+        }
+
+        .answer:hover {
+            opacity: 0.9;
+        }
+
+        .lifelines {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .lifeline {
+            background-color: white;
+            color: black;
             padding: 10px;
             margin: 5px;
             font-size: 16px;
             border: none;
             cursor: pointer;
-            width: 100px;
+            width: 150px;
+            border-radius: 5px;
         }
+
         .lifeline:disabled {
             background-color: grey;
+            cursor: not-allowed;
         }
-        .correct {
-            background-color: lightgreen;
-        }
-        .wrong {
-            background-color: red;
+
+        .message {
+            margin-top: 20px;
+            font-size: 24px;
         }
     </style>
 </head>
 <body>
 
-<h1>Who Wants to Be a Millionaire</h1>
+<div class="game-container">
+    <div class="question" id="question">
+        Type your question here
+    </div>
 
-<div class="game-box">
-    <img id="question-image" src="" alt="Question Image">
-    <p id="question"></p>
-    <button id="answer1" onclick="checkAnswer(1)"></button>
-    <button id="answer2" onclick="checkAnswer(2)"></button>
-    <button id="answer3" onclick="checkAnswer(3)"></button>
-    <button id="answer4" onclick="checkAnswer(4)"></button>
+    <div class="answers">
+        <button class="answer wrong-answer" id="answer1" onclick="checkAnswer(1)">Type WRONG answer here</button>
+        <button class="answer correct-answer" id="answer2" onclick="checkAnswer(2)">Type CORRECT answer here</button>
+        <button class="answer wrong-answer" id="answer3" onclick="checkAnswer(3)">Type WRONG answer here</button>
+        <button class="answer wrong-answer" id="answer4" onclick="checkAnswer(4)">Type WRONG answer here</button>
+    </div>
 
     <div class="lifelines">
         <button class="lifeline" id="lifeline-5050" onclick="use5050()">50:50</button>
@@ -78,55 +120,48 @@
         <button class="lifeline" id="lifeline-phone" onclick="phoneFriend()">Phone a Friend</button>
     </div>
 
-    <p id="message"></p>
+    <div class="message" id="message"></div>
 </div>
 
 <script>
     const questions = [
         {
-            image: "/mnt/data/A_quiz_bingo_game_concept_with_6_different_images,.png", // Example image, replace with correct path
             question: "What is the capital city of India?",
             answers: ["New Delhi", "Mumbai", "Bangalore", "Chennai"],
             correct: 1
         },
         {
-            image: "/mnt/data/A_quiz_bingo_game_concept_featuring_key_elements_f.png", // Example image, replace with correct path
             question: "Which festival is known as the 'Festival of Lights' in India?",
             answers: ["Holi", "Diwali", "Pongal", "Navratri"],
             correct: 2
         },
         {
-            image: "/mnt/data/A_quiz_bingo_game_concept_with_6_different_images,.png", // Example image, replace with correct path
             question: "What is the indigenous name for New Zealand?",
             answers: ["Aotearoa", "Māori", "Kiwi", "Rotorua"],
             correct: 1
+        },
+        {
+            question: "What is the national bird of Korea?",
+            answers: ["Magpie", "Crane", "Eagle", "Peacock"],
+            correct: 1
+        },
+        {
+            question: "What is the largest city in Australia?",
+            answers: ["Melbourne", "Sydney", "Brisbane", "Perth"],
+            correct: 2
+        },
+        {
+            question: "Which mountain is the highest in Korea?",
+            answers: ["Seoraksan", "Hallasan", "Baekdusan", "Jirisan"],
+            correct: 2
         }
     ];
 
     let currentQuestionIndex = 0;
     let used5050 = false;
 
-    // Arcade-style sound generator function using Web Audio API
-    function playArcadeSound(frequency, type = 'square', duration = 0.5) {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.type = type;
-        oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime); // Frequency in hertz
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-
-        oscillator.start();
-
-        // Fade out and stop sound
-        gainNode.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + duration);
-        oscillator.stop(audioContext.currentTime + duration);
-    }
-
     function loadQuestion() {
         const questionData = questions[currentQuestionIndex];
-        document.getElementById('question-image').src = questionData.image;
         document.getElementById('question').innerText = questionData.question;
         document.getElementById('answer1').innerText = questionData.answers[0];
         document.getElementById('answer2').innerText = questionData.answers[1];
@@ -138,7 +173,6 @@
     function checkAnswer(answer) {
         const questionData = questions[currentQuestionIndex];
         if (answer === questionData.correct) {
-            playArcadeSound(440); // Correct answer sound (A4 note)
             document.getElementById('message').innerText = 'Correct!';
             setTimeout(() => {
                 currentQuestionIndex++;
@@ -149,7 +183,6 @@
                 }
             }, 1000);
         } else {
-            playArcadeSound(220, 'sawtooth'); // Wrong answer sound (lower, harsher tone)
             document.getElementById('message').innerText = 'Wrong! Game Over!';
         }
     }
@@ -168,19 +201,16 @@
         toRemove.forEach(answerIndex => {
             document.getElementById('answer' + answerIndex).disabled = true;
         });
-        playArcadeSound(660, 'triangle'); // Lifeline sound (higher pitch triangle wave)
         used5050 = true;
         document.getElementById('lifeline-5050').disabled = true;
     }
 
     function askAudience() {
-        playArcadeSound(660, 'triangle'); // Lifeline sound
         document.getElementById('message').innerText = 'The audience suggests option ' + questions[currentQuestionIndex].correct;
         document.getElementById('lifeline-audience').disabled = true;
     }
 
     function phoneFriend() {
-        playArcadeSound(660, 'triangle'); // Lifeline sound
         document.getElementById('message').innerText = 'Your friend thinks the answer is ' + questions[currentQuestionIndex].correct;
         document.getElementById('lifeline-phone').disabled = true;
     }
