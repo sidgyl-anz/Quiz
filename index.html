@@ -17,7 +17,7 @@
         }
 
         .game-container {
-            background-image: url('your-background-image-url-here'); /* Background image */
+            background-image: url('your-background-image-url-here');
             background-size: cover;
             background-position: center;
             height: 100vh;
@@ -55,7 +55,7 @@
             cursor: pointer;
             border-radius: 10px;
             font-weight: bold;
-            background-color: purple; /* Default purple color for all answers */
+            background-color: purple;
             color: white;
         }
 
@@ -64,13 +64,11 @@
         }
 
         .correct {
-            background-color: green; /* Change to green if correct */
-            color: white;
+            background-color: green;
         }
 
         .wrong {
-            background-color: red; /* Change to red if wrong */
-            color: white;
+            background-color: red;
         }
 
         .lifelines {
@@ -123,43 +121,31 @@
     </div>
 
     <div class="message" id="message"></div>
+    
+    <button id="restart-btn" onclick="restartQuiz()" style="display: none; font-size: 20px; padding: 10px 20px; margin-top: 20px; border-radius: 10px;">
+        Restart Quiz
+    </button>
+
+    <div id="sorry-message" style="display: none; text-align: center;">
+        <p style="font-size: 24px; font-weight: bold; color: white;">Sorry, you missed too many questions.</p>
+        <button onclick="restartQuiz()" style="font-size: 20px; padding: 10px 20px; border-radius: 10px;">
+            Try Again
+        </button>
+    </div>
 </div>
 
 <script>
     const questions = [
-        {
-            question: "What is the capital city of India?",
-            answers: ["New Delhi", "Mumbai", "Bangalore", "Chennai"],
-            correct: 1
-        },
-        {
-            question: "Which festival is known as the 'Festival of Lights' in India?",
-            answers: ["Holi", "Diwali", "Pongal", "Navratri"],
-            correct: 2
-        },
-        {
-            question: "What is the indigenous name for New Zealand?",
-            answers: ["Aotearoa", "Māori", "Kiwi", "Rotorua"],
-            correct: 1
-        },
-        {
-            question: "What is the national bird of Korea?",
-            answers: ["Magpie", "Crane", "Eagle", "Peacock"],
-            correct: 1
-        },
-        {
-            question: "What is the largest city in Australia?",
-            answers: ["Melbourne", "Sydney", "Brisbane", "Perth"],
-            correct: 2
-        },
-        {
-            question: "Which mountain is the highest in Korea?",
-            answers: ["Seoraksan", "Hallasan", "Baekdusan", "Jirisan"],
-            correct: 2
-        }
+        { question: "What is the capital city of India?", answers: ["New Delhi", "Mumbai", "Bangalore", "Chennai"], correct: 1 },
+        { question: "Which festival is known as the 'Festival of Lights' in India?", answers: ["Holi", "Diwali", "Pongal", "Navratri"], correct: 2 },
+        { question: "What is the indigenous name for New Zealand?", answers: ["Aotearoa", "Māori", "Kiwi", "Rotorua"], correct: 1 },
+        { question: "What is the national bird of Korea?", answers: ["Magpie", "Crane", "Eagle", "Peacock"], correct: 1 },
+        { question: "What is the largest city in Australia?", answers: ["Melbourne", "Sydney", "Brisbane", "Perth"], correct: 2 },
+        { question: "Which mountain is the highest in Korea?", answers: ["Seoraksan", "Hallasan", "Baekdusan", "Jirisan"], correct: 2 }
     ];
 
     let currentQuestionIndex = 0;
+    let incorrectAnswers = 0;
     let used5050 = false;
 
     function loadQuestion() {
@@ -178,21 +164,25 @@
         const correctButtonId = 'answer' + questionData.correct;
 
         if (answer === questionData.correct) {
-            document.getElementById(correctButtonId).classList.add('correct'); // Turn correct answer green
-            playSound(440, 'square'); // Play correct sound
+            document.getElementById(correctButtonId).classList.add('correct');
+            playSound(440, 'square');
             document.getElementById('message').innerText = 'Correct!';
         } else {
-            document.getElementById('answer' + answer).classList.add('wrong'); // Turn wrong answer red
-            playSound(220, 'sawtooth'); // Play wrong sound
+            document.getElementById('answer' + answer).classList.add('wrong');
+            playSound(220, 'sawtooth');
             document.getElementById('message').innerText = 'Wrong! The correct answer was: ' + questionData.answers[questionData.correct - 1];
+            incorrectAnswers++;
         }
 
         setTimeout(() => {
             currentQuestionIndex++;
-            if (currentQuestionIndex < questions.length) {
+            if (incorrectAnswers >= 2) {
+                document.querySelector('.game-container').style.display = 'none';
+                document.getElementById('sorry-message').style.display = 'block';
+            } else if (currentQuestionIndex < questions.length) {
                 loadQuestion();
             } else {
-                document.getElementById('message').innerText = 'You have won!';
+                document.body.innerHTML = '';
             }
         }, 2000);
     }
@@ -208,8 +198,8 @@
         gainNode.connect(audioCtx.destination);
 
         oscillator.start();
-        gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 1); // Fade out sound
-        oscillator.stop(audioCtx.currentTime + 1); // Stop sound after 1 second
+        gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 1);
+        oscillator.stop(audioCtx.currentTime + 1);
     }
 
     function resetButtonStyles() {
@@ -228,7 +218,6 @@
                 incorrectAnswers.push(i);
             }
         }
-        // Randomly remove two incorrect answers
         const toRemove = incorrectAnswers.sort(() => Math.random() - 0.5).slice(0, 2);
         toRemove.forEach(answerIndex => {
             document.getElementById('answer' + answerIndex).disabled = true;
@@ -245,6 +234,20 @@
     function phoneFriend() {
         document.getElementById('message').innerText = 'Your friend thinks the answer is ' + questions[currentQuestionIndex].correct;
         document.getElementById('lifeline-phone').disabled = true;
+    }
+
+    function restartQuiz() {
+        currentQuestionIndex = 0;
+        incorrectAnswers = 0;
+        used5050 = false;
+        document.getElementById('sorry-message').style.display = 'none';
+        document.querySelector('.game-container').style.display = 'flex';
+        document.querySelectorAll('.answer').forEach(button => {
+            button.disabled = false;
+            button.className = 'answer';
+        });
+        document.querySelectorAll('.lifeline').forEach(button => button.disabled = false);
+        loadQuestion();
     }
 
     loadQuestion();
