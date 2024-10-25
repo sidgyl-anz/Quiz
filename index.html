@@ -254,4 +254,13 @@
         container.innerHTML = '<div class="thank-you-page">Thank you for playing!</div>';
     }
 
-    function use
+    function use5050() {
+        if (used5050) return;
+        const questionData = questions[currentQuestionIndex];
+        let incorrectAnswers = [];
+        for (let i = 1; i <= 4; i++) {
+            if (i !== questionData.correct) {
+                incorrectAnswers.push(i);
+            }
+        }
+        // Randomly remove
