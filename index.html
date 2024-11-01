@@ -98,6 +98,13 @@
             margin-top: 20px;
             font-size: 24px;
         }
+
+        .result {
+            margin-top: 30px;
+            font-size: 32px;
+            font-weight: bold;
+            color: yellow;
+        }
     </style>
 </head>
 <body>
@@ -132,14 +139,23 @@
             Try Again
         </button>
     </div>
+
+    <div class="result" id="result-message" style="display: none;">
+        Congratulations! You have successfully completed the quiz!
+    </div>
 </div>
 
 <script>
     const questions = [
+        { question: "What is the national bird of Korea?", answers: ["Magpie", "Crane", "Eagle", "Peacock"], correct: 1 },
+        { question: "Which mountain is the highest in Korea?", answers: ["Seoraksan", "Hallasan", "Baekdusan", "Jirisan"], correct: 2 },
         { question: "What is the capital city of South Korea?", answers: ["Busan", "Incheon", "Seoul", "Daegu"], correct: 3 },
         { question: "Which traditional Korean dish is made of fermented vegetables, mainly cabbage?", answers: ["Bibimbap", "Kimchi", "Japchae", "Bulgogi"], correct: 2 },
         { question: "What is the currency of South Korea?", answers: ["Yen", "Won", "Dollar", "Renminbi"], correct: 2 },
+        { question: "Which Korean holiday celebrates the harvest moon?", answers: ["Seollal", "Chuseok", "Boknal", "Hangul Day"], correct: 2 },
         { question: "Which K-pop group is known for their global hit 'Dynamite'?", answers: ["BLACKPINK", "BTS", "EXO", "TWICE"], correct: 2 },
+        { question: "Who is the famous South Korean film director behind 'Parasite'?", answers: ["Park Chan-wook", "Kim Ki-duk", "Bong Joon-ho", "Hong Sang-soo"], correct: 3 },
+        { question: "Which K-pop girl group is known for the song 'DDU-DU DDU-DU'?", answers: ["TWICE", "BLACKPINK", "Red Velvet", "MAMAMOO"], correct: 2 },
         { question: "Which South Korean movie won the Academy Award for Best Picture in 2020?", answers: ["The Handmaiden", "Train to Busan", "Parasite", "Burning"], correct: 3 },
         { question: "What is the popular South Korean TV show that became a global sensation in 2021?", answers: ["Kingdom", "Vincenzo", "Squid Game", "Crash Landing on You"], correct: 3 }
     ];
@@ -182,7 +198,8 @@
             } else if (currentQuestionIndex < questions.length) {
                 loadQuestion();
             } else {
-                document.body.innerHTML = '';
+                document.querySelector('.game-container').style.display = 'none';
+                document.getElementById('result-message').style.display = 'block';
             }
         }, 2000);
     }
@@ -241,6 +258,7 @@
         incorrectAnswers = 0;
         used5050 = false;
         document.getElementById('sorry-message').style.display = 'none';
+        document.getElementById('result-message').style.display = 'none';
         document.querySelector('.game-container').style.display = 'flex';
         document.querySelectorAll('.answer').forEach(button => {
             button.disabled = false;
